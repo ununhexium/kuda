@@ -8,3 +8,7 @@
  */
 
 rootProject.name = "kuda"
+
+include(":generator")
+include(":sample")
+

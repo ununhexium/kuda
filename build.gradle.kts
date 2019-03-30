@@ -5,8 +5,9 @@
  */
 
 plugins {
-  // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-  id("org.jetbrains.kotlin.jvm").version("1.3.21")
+  val kotlinVersion = "1.3.21"
+  kotlin("jvm") version kotlinVersion
+  kotlin("kapt") version kotlinVersion
 }
 
 repositories {
@@ -15,21 +16,41 @@ repositories {
   jcenter()
 }
 
-dependencies {
-  implementation("com.google.guava:guava:27.1-jre")
-  
-  implementation("org.assertj:assertj-core:3.12.2")
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-  implementation("org.reflections:reflections:0.9.11")
-
-  // TEST
-  val jUnitVersion = "5.3.1"
-  testImplementation("org.junit.jupiter:junit-jupiter-api:$jUnitVersion")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jUnitVersion")
-}
-
-tasks {
-  withType<Test> {
-    useJUnitPlatform()
-  }
-}
+//dependencies {
+//  implementation("com.github.cretz.kastree:kastree-ast-psi:0.4.0")
+//
+//  implementation("com.google.guava:guava:27.1-jre")
+//  implementation("com.google.auto.service:auto-service:1.0-rc5")
+//
+//  implementation("org.assertj:assertj-core:3.12.2")
+//  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+//  implementation("org.reflections:reflections:0.9.11")
+//
+//  kapt(project(":generator"))
+//
+//  compileOnly(project(":generator"))
+//
+//
+//  // TEST
+//  val jUnitVersion = "5.3.1"
+//  testImplementation("org.junit.jupiter:junit-jupiter-api:$jUnitVersion")
+//  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jUnitVersion")
+//}
+//
+//tasks {
+//  withType<Test> {
+//    useJUnitPlatform()
+//  }
+//}
+//
+//sourceSets {
+//  main {
+//    java {
+//      srcDirs("${buildDir.absolutePath}/tmp/kapt/main/kotlinGenerated/")
+//    }
+//  }
+//}
+//
+//kapt {
+//  useBuildCache = true
+//}

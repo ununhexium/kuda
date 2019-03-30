@@ -1,4 +1,4 @@
-package net.lab0.kuda.annotation
+package net.lab0.kuda.generator
 
 import java.lang.annotation.ElementType
 import java.lang.annotation.RetentionPolicy
