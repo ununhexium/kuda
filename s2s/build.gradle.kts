@@ -9,15 +9,23 @@ repositories {
   mavenCentral()
 }
 
+val classifier = "linux-x86_64"
+
 dependencies {
 
   implementation("com.github.cretz.kastree:kastree-ast-psi:0.4.0")
-  implementation("com.google.guava:guava:27.1-jre")
+  testImplementation("com.google.guava:guava:27.1-jre")
   implementation("com.google.auto.service:auto-service:1.0-rc5")
 
   implementation("org.assertj:assertj-core:3.12.2")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
   implementation("org.reflections:reflections:0.9.11")
+
+  val jCudaVersion = "0.9.2"
+  compile("org.jcuda:jcuda:0.9.2") {
+    isTransitive = false
+  }
+  compile("org.jcuda", "jcuda-natives", jCudaVersion, classifier = classifier)
 
   implementation(project(":generator"))
 
