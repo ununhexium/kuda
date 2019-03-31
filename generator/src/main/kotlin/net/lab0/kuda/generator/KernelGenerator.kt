@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asTypeName
 import java.io.File
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
@@ -15,14 +16,9 @@ import javax.annotation.processing.ProcessingEnvironment
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 class KernelGenerator : AbstractProcessor() {
 
-  override fun init(pe: ProcessingEnvironment) {
-    super.init(pe)
-    this.trees = Trees.instance(pe)
-  }
-
   override fun process(set: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
     roundEnv.getElementsAnnotatedWith(Kernel::class.java).forEach {
-      it.
+
     }
     generateClass("TheFoo", "foo.bar")
 

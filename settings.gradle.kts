@@ -10,5 +10,6 @@
 rootProject.name = "kuda"
 
 include(":generator")
+include(":s2s")
 include(":sample")
 
