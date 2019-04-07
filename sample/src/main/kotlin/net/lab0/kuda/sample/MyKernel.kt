@@ -12,14 +12,14 @@ class MyKernel : KudaContext() {
   @Global
   fun theGlobal(n: Int, ns: IntArray) {
     val idx: Int = blockIdx.x * blockDim.x + threadIdx.x
-    ns[idx] = n
+//    ns[idx] = n
   }
 
 }
 
 fun main() {
   val myKernel = MyKernelGenerated()
-  val ns = IntArray(10) { 0 }
-  myKernel(KernelParameters(ns.size), 116, ns)
+  val ns = IntArray(1024) { 0 }
+  myKernel(KernelParameters(gridDimX = 32, blockDimX = 32), 116, ns)
   println(ns.joinToString())
 }
