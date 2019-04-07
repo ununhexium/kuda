@@ -62,22 +62,24 @@ tasks {
   val kuda by registering(Task::class) {
     doLast {
       val javaSources = sourceSets.main.get().allJava
-      val kernels = javaSources.srcDirs.flatMap { folder ->
+
+      javaSources.srcDirs.flatMap { folder ->
         fileTree(folder).filter { file ->
           file.readText().contains("import " + Kernel::class.qualifiedName)
+        }.map { kernel ->
+          val cuda = K2C(kernel.readText()).transpile()
+          val cudaFile = file("$buildDir/generated-resources/net/lab0/kuda/kernel/" + kernel.name + ".cuda")
+          if (!cudaFile.parentFile.exists()) {
+            cudaFile.parentFile.mkdirs()
+          }
+          cudaFile.writeText(cuda)
+
+          logger.info(
+              "Generated cuda kernel:\n$kernel\n$cudaFile"
+          )
         }
       }
 
-      val cuda = kernels.map {
-        K2C(it.readText()).transpile()
-      }
-
-      logger.info(
-          "Generated cuda kernels:\n" +
-              kernels.zip(cuda).joinToString("\n\n", prefix = "\n") {
-                it.first.toString() + "\n" + it.second
-              }
-      )
     }
   }
 

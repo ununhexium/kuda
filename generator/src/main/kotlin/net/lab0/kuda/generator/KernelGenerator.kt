@@ -74,7 +74,7 @@ class KernelGenerator : AbstractProcessor() {
                 .addProperty(
                     PropertySpec
                         .builder("cudaResourceName", String::class)
-                        .initializer("%S", "net/lab0/kuda/kernel/$className.cuda")
+                        .initializer("%S", "net/lab0/kuda/kernel/$className.kt.cuda")
                         .build()
                 )
                 .addFunction(
