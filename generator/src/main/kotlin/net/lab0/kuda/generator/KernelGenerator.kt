@@ -74,7 +74,7 @@ class KernelGenerator : AbstractProcessor() {
                 .addProperty(
                     PropertySpec
                         .builder("cudaResourceName", String::class)
-                        .initializer("%S", "net/lab0/kuda/kernel/$className.kt.cuda")
+                        .initializer("%S", "net/lab0/kuda/kernel/$className.kt.cu")
                         .build()
                 )
                 .addFunction(
@@ -98,6 +98,8 @@ class KernelGenerator : AbstractProcessor() {
                             CodeBlock.of(
                                 """
                                   |val ptxFileName = compileCudaToPtx(%T.getResource(cudaResourceName))
+                                  |
+                                  |init()
                                   |
                                   |// Load the ptx file.
                                   |val module = %T()
@@ -148,6 +150,9 @@ class KernelGenerator : AbstractProcessor() {
                             )
                         )
                         // TODO: copy returned data
+                        .also { function ->
+                          generateMemoryDeallocators(globalFunction, function)
+                        }
                         .also { function ->
                           generateMemoryDeallocators(globalFunction, function)
                         }

@@ -10,16 +10,16 @@ import net.lab0.kuda.generated.kernel.MyKernelGenerated
 class MyKernel : KudaContext() {
 
   @Global
-  fun addN(n: Int, ns: IntArray) {
+  fun theGlobal(n: Int, ns: IntArray) {
     val idx: Int = blockIdx.x * blockDim.x + threadIdx.x
-    ns[idx] = ns[idx] + n
+    ns[idx] = n
   }
 
 }
 
 fun main() {
-  val k = MyKernelGenerated()
-  val ns = IntArray(10) { it }
-  k(KernelParameters(1024), 116, ns)
-  println(ns)
+  val myKernel = MyKernelGenerated()
+  val ns = IntArray(10) { 0 }
+  myKernel(KernelParameters(ns.size), 116, ns)
+  println(ns.joinToString())
 }

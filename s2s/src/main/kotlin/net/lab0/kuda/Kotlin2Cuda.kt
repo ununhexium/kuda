@@ -34,7 +34,8 @@ class K2C(val source: String) {
         .firstOrNull { it.hasAnnotationNamed("Global") }
         ?: throw CantConvert(node.forHuman(), "There is no @Global function in the class ${node.name}.")
 
-    var out = "__global__\n"
+    var out ="""extern "C""""
+    out += "\n\n__global__\n"
 
     out += "void ${global.name}("
     out +=
@@ -85,6 +86,7 @@ class K2C(val source: String) {
       is Node.Expr.Name -> convertName(expr, indent)
       is Node.Expr.ArrayAccess -> convertArrayAccess(expr, indent)
       is Node.Expr.If -> convertIf(expr, indent)
+      is Node.Expr.Const -> expr.value
       else -> throw CantConvert(expr)
     }.injectIndent(indent)
   }

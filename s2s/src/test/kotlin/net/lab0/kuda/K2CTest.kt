@@ -40,13 +40,15 @@ internal class K2CTest {
 
     assertThat(cuda).isEqualTo(
         """
-      |__global__
-      |void count(int * ints)
-      |{
-      |  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-      |  ints[idx] = idx;
-      |}
-    """.trimMargin()
+          |extern "C"
+          |
+          |__global__
+          |void count(int * ints)
+          |{
+          |  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+          |  ints[idx] = idx;
+          |}
+        """.trimMargin()
     )
   }
 
@@ -59,6 +61,8 @@ internal class K2CTest {
 
     assertThat(cuda).isEqualTo(
         """
+          |extern "C"
+          |
           |__global__
           |void saxpy(int n, float a, float * x, float * y)
           |{
@@ -79,6 +83,8 @@ internal class K2CTest {
 
     assertThat(cuda).isEqualTo(
         """
+          |extern "C"
+          |
           |__global__
           |void MatAdd(float ** A, float ** B, float ** C)
           |{
@@ -101,6 +107,8 @@ internal class K2CTest {
         cuda
     ).isEqualTo(
         """
+          |extern "C"
+          |
           |__global__ void myKernel(cudaPitchedPtr devPitchedPtr, int width, int height, int depth)
           |{
           |    char* devPtr = devPitchedPtr.ptr;
@@ -140,13 +148,15 @@ internal class K2CTest {
 
     assertThat(cuda).isEqualTo(
         """
-      |__global__
-      |void addN(int n, int * ns)
-      |{
-      |  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-      |  ns[idx] = ns[idx] + n;
-      |}
-    """.trimMargin()
+          |extern "C"
+          |
+          |__global__
+          |void addN(int n, int * ns)
+          |{
+          |  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+          |  ns[idx] = ns[idx] + n;
+          |}
+        """.trimMargin()
     )
   }
 
