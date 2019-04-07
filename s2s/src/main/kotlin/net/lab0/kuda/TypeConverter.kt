@@ -16,6 +16,7 @@ fun convertSimple(simple: Node.TypeRef.Simple): String {
     "Int" -> "int"
     "Float" -> "float"
     "FloatArray" -> "float *"
+    "IntArray" -> "int *"
     "Array" -> convertSimple(firstPiece.typeParams.first()?.ref as Node.TypeRef.Simple) + "*"
     else -> throw IllegalStateException("Don't know how to convert $simple")
   }

@@ -3,9 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   kotlin("jvm")
   kotlin("kapt")
+  id("java")
+  id("maven-publish")
 }
 
 repositories {
+  mavenLocal()
   mavenCentral()
 }
 
@@ -14,20 +17,27 @@ val classifier = "linux-x86_64"
 dependencies {
 
   implementation("com.github.cretz.kastree:kastree-ast-psi:0.4.0")
-  testImplementation("com.google.guava:guava:27.1-jre")
-  implementation("com.google.auto.service:auto-service:1.0-rc5")
 
-  implementation("org.assertj:assertj-core:3.12.2")
+  implementation("net.lab0.kuda:annotation:0.1")
+
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
   implementation("org.reflections:reflections:0.9.11")
+  implementation("org.slf4j:slf4j-api:1.8.0-beta4")
+
 
   val jCudaVersion = "0.9.2"
-  compile("org.jcuda:jcuda:0.9.2") {
+  implementation("org.jcuda:jcuda:0.9.2") {
     isTransitive = false
   }
-  compile("org.jcuda", "jcuda-natives", jCudaVersion, classifier = classifier)
+  implementation("org.jcuda", "jcuda-natives", jCudaVersion, classifier = classifier)
 
-  implementation(project(":generator"))
+
+  // TEST
+
+  testImplementation("com.google.guava:guava:27.1-jre")
+  testImplementation("org.assertj:assertj-core:3.12.2")
+  testImplementation("org.slf4j:slf4j-jdk14:1.8.0-beta4")
+
 
   // TEST
   val jUnitVersion = "5.3.1"
@@ -35,6 +45,18 @@ dependencies {
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jUnitVersion")
 }
 
+
+publishing {
+  publications {
+    create<MavenPublication>("s2s") {
+      groupId = "net.lab0.kuda"
+      artifactId = "s2s"
+      version = "0.1"
+
+      from(components["java"])
+    }
+  }
+}
 
 
 tasks {

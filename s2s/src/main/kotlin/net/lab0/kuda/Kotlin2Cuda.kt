@@ -6,8 +6,8 @@ import kastree.ast.psi.Parser
 import net.lab0.kuda.exception.CantConvert
 import java.lang.StringBuilder
 
-object K2C {
-  fun transpile(source: String): String {
+class K2C(val source: String) {
+  fun transpile(): String {
     val ast = Parser.parseFile(source)
     val output = StringBuilder()
     Visitor.visit(ast) { node, _ ->
@@ -31,7 +31,8 @@ object K2C {
     val global = node
         .members
         .mapNotNull { it as? Node.Decl.Func }
-        .first { it.hasAnnotationNamed("Global") }
+        .firstOrNull { it.hasAnnotationNamed("Global") }
+        ?: throw CantConvert(node.forHuman(), "There is no @Global function in the class ${node.name}.")
 
     var out = "__global__\n"
 
@@ -46,6 +47,15 @@ object K2C {
     out += convertBodyToBlock(block, indent)
 
     return out
+  }
+
+  private fun getKernelClasses(): List<Node.WithAnnotations> {
+    val ast = Parser.parseFile(source)
+    return Visitor.filter(ast) { node ->
+      node is Node.WithAnnotations && node.hasAnnotationNamed("Kernel")
+    }.map {
+      it as Node.WithAnnotations
+    }
   }
 
   private fun convertBodyToBlock(body: Node.Decl.Func.Body, indent: Int): String {
@@ -135,6 +145,12 @@ object K2C {
 
   private fun convertProperty(property: Node.Decl.Property, indent: Int): String {
     val variable = property.vars.first()!!
+
+    if (variable.type == null) {
+      val origin = "Error on variable named ${variable.name}."
+      throw CantConvert("$origin There is no type inference. As for now, you must specify the type of your left hand operand.")
+    }
+
     var out = convertType(variable.type!!) + " " + variable.name
 
     val expr = property.expr
@@ -144,6 +160,16 @@ object K2C {
 
     return out
   }
+}
+
+private fun Visitor.Companion.filter(node: Node, predicate: (Node) -> Boolean): List<Node> {
+  val result = mutableListOf<Node>()
+  Visitor.visit(node) { n, _ ->
+    if (n != null && predicate(n)) {
+      result.add(n)
+    }
+  }
+  return result
 }
 
 private fun String.injectIndent(indent: Int): String {
