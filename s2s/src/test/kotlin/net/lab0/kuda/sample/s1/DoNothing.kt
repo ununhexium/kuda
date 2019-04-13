@@ -5,10 +5,9 @@ import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
 
 @Kernel
-class K0 : KudaContext() {
+class DoNothing : KudaContext() {
   @Global
-  fun count(ints: IntArray) {
-    val idx: Int = blockIdx.x * blockDim.x + threadIdx.x
-    ints[idx] = idx
+  fun doNothing() {
+    // that's it folks!
   }
 }

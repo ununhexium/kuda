@@ -6,7 +6,7 @@ import kastree.ast.psi.Parser
 import net.lab0.kuda.exception.CantConvert
 import java.lang.StringBuilder
 
-class K2C(val source: String) {
+class K2C(private val source: String) {
   fun transpile(): String {
     val ast = Parser.parseFile(source)
     val output = StringBuilder()
@@ -34,7 +34,7 @@ class K2C(val source: String) {
         .firstOrNull { it.hasAnnotationNamed("Global") }
         ?: throw CantConvert(node.forHuman(), "There is no @Global function in the class ${node.name}.")
 
-    var out ="""extern "C""""
+    var out = """extern "C""""
     out += "\n\n__global__\n"
 
     out += "void ${global.name}("
@@ -87,8 +87,33 @@ class K2C(val source: String) {
       is Node.Expr.ArrayAccess -> convertArrayAccess(expr, indent)
       is Node.Expr.If -> convertIf(expr, indent)
       is Node.Expr.Const -> expr.value
+      is Node.Expr.While -> convertWhile(expr, indent)
+      is Node.Expr.Brace -> convertBrace(expr, indent)
+      is Node.Expr.UnaryOp -> convertUnaryOp(expr, indent)
+      // TODO: more
       else -> throw CantConvert(expr)
     }.injectIndent(indent)
+  }
+
+  private fun convertUnaryOp(unaryOp: Node.Expr.UnaryOp, indent: Int): String {
+    return when (unaryOp.oper.token) {
+      Node.Expr.UnaryOp.Token.NEG -> " -" + convertExpr(unaryOp.expr)
+      Node.Expr.UnaryOp.Token.INC -> convertExpr(unaryOp.expr) + "++"
+      else -> throw CantConvert(unaryOp.oper.token)
+    }
+  }
+
+  private fun convertBrace(expr: Node.Expr.Brace, indent: Int): String {
+    return convertBlock(expr.block!!, indent)
+  }
+
+  private fun convertWhile(`while`: Node.Expr.While, indent: Int): String {
+    val i = " ".repeat(indent)
+    return """
+      |while (${convertExpr(`while`.expr, 0)}) {
+      |${convertExpr(`while`.body, indent)}
+      |}
+    """.trimMargin()
   }
 
   private fun convertIf(`if`: Node.Expr.If, indent: Int): String {
@@ -130,10 +155,16 @@ class K2C(val source: String) {
   private fun convertToken(token: Node.Expr.BinaryOp.Token): String {
     return when (token) {
       Node.Expr.BinaryOp.Token.ADD -> " + "
-      Node.Expr.BinaryOp.Token.DOT -> "."
-      Node.Expr.BinaryOp.Token.MUL -> " * "
+      Node.Expr.BinaryOp.Token.AND -> " && "
       Node.Expr.BinaryOp.Token.ASSN -> " = "
+      Node.Expr.BinaryOp.Token.DOT -> "."
+      Node.Expr.BinaryOp.Token.GTE -> " >= "
       Node.Expr.BinaryOp.Token.LT -> " < "
+      Node.Expr.BinaryOp.Token.GT -> " > "
+      Node.Expr.BinaryOp.Token.LTE -> " <= "
+      Node.Expr.BinaryOp.Token.MUL -> " * "
+      Node.Expr.BinaryOp.Token.SUB -> " - "
+      // TODO: more
       else -> throw CantConvert(token)
     }
   }

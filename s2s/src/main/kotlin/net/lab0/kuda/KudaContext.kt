@@ -12,10 +12,14 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.net.URL
+import kotlin.random.Random
 
 open class KudaContext {
   companion object {
     private val log: Logger by lazy { LoggerFactory.getLogger(this::class.java.name) }
+
+    // To prevent intellij from beeing clever with comparisons
+    val someValue = Random(0).nextInt()
   }
 
   private var init = false
@@ -34,6 +38,7 @@ open class KudaContext {
     init = true
   }
 
+  private var generatedPtx = false
   protected fun compileCudaToPtx(cudaResource: URL): String {
     val cudaContent = Resources.toString(cudaResource, Charsets.UTF_8)
     val tmpDir = Config.tmpFolder.resolve(cudaResource.path)
@@ -43,7 +48,7 @@ open class KudaContext {
     val cuFileName = cudaSourceFile.absolutePath.toString()
     val ptxFileName = cudaResource.file + ".ptx"
     val ptxFile = tmpDir.resolve(ptxFileName).toFile()
-    if (ptxFile.exists()) {
+    if (ptxFile.exists() && generatedPtx) {
       return ptxFileName
     }
 
@@ -76,7 +81,6 @@ open class KudaContext {
       )
     }
 
-
     if (exitValue != 0) {
       log.error("nvcc process exitValue $exitValue")
       log.error("Error  Message:\n$errorMessage")
@@ -86,26 +90,33 @@ open class KudaContext {
       )
     }
 
+    generatedPtx = true
     log.info("Finished creating PTX file")
     return ptxFileName
   }
 
+
   // TODO use long everywhere
   object blockIdx {
-    const val x: Int = 0
-    const val y: Int = 0
+    val x: Int = someValue
+    val y: Int = someValue
+    val z: Int = someValue
   }
 
   object blockDim {
-    const val x: Int = 0
+    val x: Int = someValue
+    val y: Int = someValue
+    val z: Int = someValue
   }
 
 
   object threadIdx {
-    const val x: Int = 0
-    const val y: Int = 0
+    val x: Int = someValue
+    val y: Int = someValue
+    val z: Int = someValue
   }
 }
+
 
 
 fun FloatArray.copyToDevice(): CUdeviceptr {

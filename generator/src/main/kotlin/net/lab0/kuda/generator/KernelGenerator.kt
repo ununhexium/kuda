@@ -21,6 +21,7 @@ import net.lab0.kuda.KernelParameters
 import net.lab0.kuda.KudaContext
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
+import net.lab0.kuda.annotation.Return
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -65,7 +66,8 @@ class KernelGenerator : AbstractProcessor() {
   }
 
   private fun generateClass(className: String, pack: String, globalFunction: ExecutableElement) {
-    val returned = listOf<Any>()
+    // TODO: for return only elements, don't copy from host to device
+    val returned = globalFunction.parameters.filter { it.getAnnotation(Return::class.java) != null }
 
     val file = FileSpec.builder(pack, className + "Generated")
         .addType(
@@ -122,7 +124,6 @@ class KernelGenerator : AbstractProcessor() {
                         .also { function ->
                           generateMemoryAllocators(globalFunction, function)
                         }
-                        // TODO: returned values malloc
                         .addCode(
                             generateKernelParameters(globalFunction.parameters)
                         )
@@ -151,7 +152,7 @@ class KernelGenerator : AbstractProcessor() {
                         )
                         // TODO: copy returned data
                         .also { function ->
-                          generateMemoryDeallocators(globalFunction, function)
+                          copyDataFromDeviceToHost(returned, function)
                         }
                         .also { function ->
                           generateMemoryDeallocators(globalFunction, function)
@@ -173,11 +174,42 @@ class KernelGenerator : AbstractProcessor() {
         type as ArrayType
         when (type.componentType.kind) {
           TypeKind.INT -> IntArray::class.asTypeName()
+          TypeKind.DOUBLE -> DoubleArray::class.asTypeName()
+          TypeKind.LONG -> LongArray::class.asTypeName()
+          TypeKind.FLOAT -> FloatArray::class.asTypeName()
+          // TODO: more types
           else -> throw IllegalStateException("The kind ${type.componentType.kind} is not supported")
         }
       }
       TypeKind.INT -> Int::class.asTypeName()
+      TypeKind.LONG -> Long::class.asTypeName()
+      // TODO: more
       else -> throw IllegalStateException("The kind ${it.asType().kind} is not supported")
+    }
+  }
+
+  private fun copyDataFromDeviceToHost(returned: List<VariableElement>, function: FunSpec.Builder) {
+    returned.forEach { param ->
+      if (param.isArray()) {
+        val sizeOf = findSizeOf(param.asType() as ArrayType)
+
+        function.addCode(
+            CodeBlock.of(
+                """
+                  |// copy data back to host
+                  |JCudaDriver.cuMemcpyDtoH(Pointer.to(%L), devicePointer_%L, %LL * %L.size)
+                  |
+                  |
+                """.trimMargin(),
+                param.simpleName,
+                param.simpleName,
+                sizeOf,
+                param.simpleName
+            )
+        )
+      } else {
+        TODO("Can we return a non array element?")
+      }
     }
   }
 
@@ -224,19 +256,10 @@ class KernelGenerator : AbstractProcessor() {
             CodeBlock.of(
                 """
                   |// free %L
-                  |JCudaDriver.cuMemcpyDtoH(
-                  |    Pointer.to(%L),
-                  |    devicePointer_%L,
-                  |    %LL * %L.size
-                  |)
                   |JCudaDriver.cuMemFree(devicePointer_%L)
                   |
                   |
                 """.trimMargin(),
-                param.simpleName,
-                param.simpleName,
-                param.simpleName,
-                sizeOf,
                 param.simpleName,
                 param.simpleName
             )
@@ -248,6 +271,9 @@ class KernelGenerator : AbstractProcessor() {
   private fun findSizeOf(param: ArrayType): Int {
     return when (param.componentType.kind) {
       TypeKind.INT -> Sizeof.INT // TODO: use literal instead of copying the value
+      TypeKind.DOUBLE -> Sizeof.DOUBLE
+      TypeKind.LONG -> Sizeof.LONG
+      // TODO: more types
       else -> throw IllegalStateException("The kind ${param.componentType.kind} is not supported")
     }
   }
@@ -258,6 +284,7 @@ class KernelGenerator : AbstractProcessor() {
       when (kind) {
         TypeKind.BOOLEAN -> "BooleanArray(1){$name}"
         TypeKind.INT -> "IntArray(1){$name}"
+        TypeKind.LONG -> "LongArray(1){$name}"
         TypeKind.ARRAY -> name
         // TODO add other types
         else -> throw IllegalStateException("The kind $kind is not supported")
@@ -269,7 +296,7 @@ class KernelGenerator : AbstractProcessor() {
           |${
         params.joinToString(",\n") {
           "    %T.to(" +
-              arrayWrap(it, it.simpleName.toString()) +
+              arrayWrap(it, "devicePointer_" + it.simpleName.toString()) +
               ")"
         }
         }

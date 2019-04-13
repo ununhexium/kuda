@@ -21,7 +21,7 @@ import net.lab0.kuda.annotation.Return
 @Kernel
 class K3Gen : KudaContext() {
   @Global
-  fun saxpy(n: Int, a: Float, x: FloatArray, y: FloatArray, @Return(size = 10) z: FloatArray) {
+  fun saxpy(n: Int, a: Float, x: FloatArray, y: FloatArray, @Return z: FloatArray) {
     val i: Int = blockIdx.x * blockDim.x + threadIdx.x
     if (i < n) z[i] = a * x[i] + y[i]
   }

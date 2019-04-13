@@ -1,5 +1,6 @@
 package net.lab0.kuda.annotation
 
-annotation class Return(
-    val size: Long
-)
+/**
+ * Global function parameters annotated with [Return] will not copy the given data to the device.
+ */
+annotation class Return

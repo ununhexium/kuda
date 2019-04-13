@@ -34,6 +34,7 @@ dependencies {
 
   // TEST
 
+  testImplementation("com.github.wumpz:diffutils:2.2")
   testImplementation("com.google.guava:guava:27.1-jre")
   testImplementation("org.assertj:assertj-core:3.12.2")
   testImplementation("org.slf4j:slf4j-jdk14:1.8.0-beta4")

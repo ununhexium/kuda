@@ -13,10 +13,15 @@ fun convertType(type: Node.Type): String {
 fun convertSimple(simple: Node.TypeRef.Simple): String {
   val firstPiece = simple.pieces.first()
   return when (firstPiece.name) {
-    "Int" -> "int"
+    "Boolean" -> "bool"
+    "Double" -> "double"
     "Float" -> "float"
+    "Int" -> "int"
+    "Long" -> "long"
+    "DoubleArray" -> "double *"
     "FloatArray" -> "float *"
     "IntArray" -> "int *"
+    "LongArray" -> "long *"
     "Array" -> convertSimple(firstPiece.typeParams.first()?.ref as Node.TypeRef.Simple) + "*"
     else -> throw IllegalStateException("Don't know how to convert $simple")
   }
