@@ -60,6 +60,7 @@ to forward the kernel call to the graphics card.
 
 Currently supports some basic C-like operations with a lot of restrictions.
 
+
 ### Data types
 
 Kotlin data types are mapped to their C equivalent according to the following table.
@@ -95,9 +96,11 @@ Kotlin data types are mapped to their C equivalent according to the following ta
 
 Uses kotlin 1.3 experimental unsigned types.
 
+
 ### Matrices
 
-Supports
+Supports C matrix notation `int [][] foo` and `int ** foo` 
+with nested arrays: `val foo: Array<IntArray>`
 
 
 No conversion for `Char`s.

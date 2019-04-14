@@ -17,10 +17,6 @@ fun List<Node.Decl>.withAnnotation(name: String): List<Node.Decl.Structured> =
     }
 
 
-//fun Node.WithModifiers.hasAnnotationNamed(name: String): Boolean {
-//  return anns.any { it.anns.any { it.names.any { it == name } } }
-//}
-
 fun Node.WithAnnotations.hasAnnotationNamed(name: String): Boolean {
   return anns.any { it.anns.any { it.names.any { it == name } } }
 }

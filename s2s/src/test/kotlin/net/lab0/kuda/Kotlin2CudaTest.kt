@@ -2,7 +2,7 @@ package net.lab0.kuda
 
 import net.lab0.kuda.exception.CantConvert
 import net.lab0.kuda.sample.s1.SaxpyKernel
-import net.lab0.kuda.sample.s1.K2
+import net.lab0.kuda.sample.s1.Matrix2DKernel
 import net.lab0.kuda.sample.s1.K3
 import net.lab0.kuda.sample.s1.K4
 import net.lab0.kuda.sample.s1.K5
@@ -35,14 +35,14 @@ internal class Kotlin2CudaTest {
 
   @Test
   fun `can convert a kernel using 2D array`() {
-    val cuda = loadAndTranspile(K2::class)
+    val cuda = loadAndTranspile(Matrix2DKernel::class)
 
     val expected =
         """
           |extern "C"
           |
           |__global__
-          |void MatAdd(float ** A, float ** B, float ** C)
+          |void matrixAdd(float ** A, float ** B, float ** C)
           |{
           |  int i = threadIdx.x;
           |  int j = threadIdx.y;
