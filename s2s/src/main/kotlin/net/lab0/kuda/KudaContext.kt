@@ -23,6 +23,10 @@ open class KudaContext {
 
     private var init = false
 
+    /**
+     * Initializes the Cuda computation context.
+     */
+    @Suppress("unused")
     fun init() {
       synchronized(init) {
         if (init) return

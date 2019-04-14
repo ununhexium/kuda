@@ -20,8 +20,6 @@ dependencies {
   
   implementation("com.squareup:kotlinpoet:1.2.0")
 
-  implementation("net.lab0.kuda:annotation:0.1")
-
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.reflections:reflections:0.9.11")

@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.fail
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Files
@@ -48,8 +49,17 @@ fun compileToPtx(source: String): String {
   if (process.exitValue() != 0) {
     log.error(String(process.errorStream.readBytes()))
     log.info(String(process.inputStream.readBytes()))
+    fail<Any>(path.toFile().readText().prefixWithLines())
   }
   return nvcc.outputFile.toFile().readText()
+}
+
+private fun String.prefixWithLines(): String {
+  val lines = this.split("\n")
+  val marginWidth = (Math.ceil(Math.log10(lines.size.toDouble() + 1)) +1).toInt()
+  return lines.mapIndexed { idx, line ->
+    String.format("%${marginWidth}d: %s", idx, line)
+  }.joinToString("\n", prefix = "\n")
 }
 
 /**

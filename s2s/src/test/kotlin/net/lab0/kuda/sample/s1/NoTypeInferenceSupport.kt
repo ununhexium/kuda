@@ -5,7 +5,7 @@ import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
 
 @Kernel
-class K5 : KudaContext() {
+class NoTypeInferenceSupport : KudaContext() {
 
   @Global
   fun mustGiveTyper(n: Int, ns: IntArray) {

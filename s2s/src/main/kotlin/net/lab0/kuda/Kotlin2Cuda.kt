@@ -90,15 +90,24 @@ class Kotlin2Cuda(private val source: String) {
       is Node.Expr.While -> convertWhile(expr, indent)
       is Node.Expr.Brace -> convertBrace(expr, indent)
       is Node.Expr.UnaryOp -> convertUnaryOp(expr, indent)
+      is Node.Expr.Paren -> convertParen(expr, indent)
       // TODO: more
       else -> throw CantConvert(expr)
     }.injectIndent(indent)
   }
 
+  private fun convertParen(paren: Node.Expr.Paren, indent: Int): String {
+    return " ( " + convertExpr(paren.expr) + " ) "
+  }
+
   private fun convertUnaryOp(unaryOp: Node.Expr.UnaryOp, indent: Int): String {
     return when (unaryOp.oper.token) {
-      Node.Expr.UnaryOp.Token.NEG -> " -" + convertExpr(unaryOp.expr)
+      Node.Expr.UnaryOp.Token.DEC -> convertExpr(unaryOp.expr) + "--"
       Node.Expr.UnaryOp.Token.INC -> convertExpr(unaryOp.expr) + "++"
+      Node.Expr.UnaryOp.Token.NEG -> " -" + convertExpr(unaryOp.expr)
+      Node.Expr.UnaryOp.Token.NOT -> " !" + convertExpr(unaryOp.expr)
+      Node.Expr.UnaryOp.Token.POS -> " +" + convertExpr(unaryOp.expr)
+      // TODO: more
       else -> throw CantConvert(unaryOp.oper.token)
     }
   }
@@ -142,13 +151,39 @@ class Kotlin2Cuda(private val source: String) {
   }
 
   private fun convertBinaryOperation(binaryOp: Node.Expr.BinaryOp, indent: Int): String {
-    return convertExpr(binaryOp.lhs) + convertOper(binaryOp.oper) + convertExpr(binaryOp.rhs)
+    return if (binaryOp.isFunctionCall()) {
+      val call = binaryOp.rhs as? Node.Expr.Call ?: throw CantConvert(binaryOp)
+      val expr = call.expr as? Node.Expr.Name ?: throw CantConvert(binaryOp)
+      val rhsName = call.args.first().expr as Node.Expr.Name
+
+      convertExpr(binaryOp.lhs) +
+          when (expr.name) {
+            "and" -> " & "
+            "or" -> " | "
+            "xor" -> " ^ "
+            else -> throw CantConvert(expr.name)
+          } + convertName(rhsName, indent) + ";"
+
+    } else {
+      convertExpr(binaryOp.lhs) + convertOper(binaryOp.oper) + convertExpr(binaryOp.rhs)
+    }
   }
 
   private fun convertOper(oper: Node.Expr.BinaryOp.Oper, indent: Int = 0): String {
     return when (oper) {
       is Node.Expr.BinaryOp.Oper.Token -> convertToken(oper.token)
+      is Node.Expr.BinaryOp.Oper.Infix -> convertInfix(oper.str)
       else -> throw CantConvert(oper)
+    }
+  }
+
+  private fun convertInfix(str: String): String {
+    // TODO: improve crappy binary operation conversion
+    return when (str) {
+      "and" -> " & "
+      "or" -> " | "
+      "xor" -> " ^ "
+      else -> throw CantConvert(str)
     }
   }
 
@@ -157,12 +192,17 @@ class Kotlin2Cuda(private val source: String) {
       Node.Expr.BinaryOp.Token.ADD -> " + "
       Node.Expr.BinaryOp.Token.AND -> " && "
       Node.Expr.BinaryOp.Token.ASSN -> " = "
+      Node.Expr.BinaryOp.Token.DIV -> " / "
       Node.Expr.BinaryOp.Token.DOT -> "."
+      Node.Expr.BinaryOp.Token.EQ -> " == "
       Node.Expr.BinaryOp.Token.GTE -> " >= "
       Node.Expr.BinaryOp.Token.LT -> " < "
       Node.Expr.BinaryOp.Token.GT -> " > "
       Node.Expr.BinaryOp.Token.LTE -> " <= "
+      Node.Expr.BinaryOp.Token.MOD -> " % "
       Node.Expr.BinaryOp.Token.MUL -> " * "
+      Node.Expr.BinaryOp.Token.NEQ -> " != "
+      Node.Expr.BinaryOp.Token.OR -> " || "
       Node.Expr.BinaryOp.Token.SUB -> " - "
       // TODO: more
       else -> throw CantConvert(token)
@@ -209,4 +249,11 @@ class Kotlin2Cuda(private val source: String) {
     return this.split("\n").joinToString("\n") { i + it }
   }
 
+  private fun Node.Expr.BinaryOp.isFunctionCall(): Boolean {
+    val token = this.oper as? Node.Expr.BinaryOp.Oper.Token
+    val dot = token?.token == Node.Expr.BinaryOp.Token.DOT
+    val call = this.rhs as? Node.Expr.Call
+
+    return dot && call != null
+  }
 }

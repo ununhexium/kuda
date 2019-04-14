@@ -96,6 +96,51 @@ Kotlin data types are mapped to their C equivalent according to the following ta
 
 Uses kotlin 1.3 experimental unsigned types.
 
+### Operators
+
+Tested operators are
+
+Arithmetic
+* `+`
+* `+` unary
+* `-`
+* `-` unary
+* `*` multiplication
+* `/`
+* `%`
+* `++` prefixed
+* `--` prefixed
+* `++` postfixed
+* `--` postfixed
+
+Relational
+* `(` `)` priority, not funtion call 
+* `>` 
+* `<` 
+* `>=` 
+* `<=` 
+
+Logical
+* `&&`
+* `||`
+* `!`
+
+Binary
+
+| Kotlin | C    |
+|-------:|:-----|
+|and     |  &   |
+|or      |&#124;|
+|xor     | ^    |
+
+### Branches
+
+* `while`
+* `if`
+
+For is explicitly not supported as the syntax are very different.
+While will do the job just fine.
+
 
 ### Matrices
 
@@ -110,7 +155,6 @@ No conversion for `Char`s.
 ## Limitations
 
 A lot... ʘ︵ʘ
-
 
 ### Variable names are completely unchecked.
 
@@ -139,6 +183,15 @@ None so far.
 
 Not tested
 
+### Function parameters
+
+Kotlin forbids the reassignment of function parameters.
+Either redeclare the variable, or use a 1 element array.
+
+### Function calls
+
+Limited to binary operators special cases
+
 
 -------------------------------
 
@@ -165,6 +218,21 @@ Propose placeholders for all the Cuda functions.
 ### Data classes
 
 Map C struct to kotlin data classes
+
+### Cast
+
+```kotlin
+val i:Long = 1
+val j:Int = i.toInt()
+```
+
+Should be translated as
+```c++
+long i = 1
+int j = (int) i
+```
+
+Same for `toFloat`, `toDouble`, ...
 
 -------------------------------
 

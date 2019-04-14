@@ -5,7 +5,7 @@ import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
 
 @Kernel
-class K4 : KudaContext() {
+class AddConstantKernel : KudaContext() {
 
   @Global
   fun addN(n: Int, ns: IntArray) {
