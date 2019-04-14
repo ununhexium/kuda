@@ -5,7 +5,7 @@ import net.lab0.kuda.KudaContext
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
 import net.lab0.kuda.annotation.Return
-import net.lab0.kuda.generated.kernel.MyKernelGenerated
+import net.lab0.kuda.example.MyKernelWrapper
 
 
 @Kernel
@@ -18,10 +18,10 @@ class MyKernel : KudaContext() {
 }
 
 fun main() {
-  val myKernel = MyKernelGenerated()
+  val myKernel = MyKernelWrapper()
   val a = (0..99).toList().toIntArray()
   val b = (0..99).toList().toIntArray()
   val c = IntArray(100) { -1 }
-  myKernel(KernelParameters(gridDimX = a.size, blockDimX = 1), a, b, c)
+  myKernel(KernelParameters(gridDimX = 1, blockDimX = 1), a, b, c)
   println(c.joinToString())
 }

@@ -1,5 +1,6 @@
-import net.lab0.kuda.K2C
+import net.lab0.kuda.Kotlin2Cuda
 import net.lab0.kuda.annotation.Kernel
+import net.lab0.kuda.wrapper.CallWrapperGenerator
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
@@ -17,12 +18,7 @@ buildscript {
 
 plugins {
   kotlin("jvm")
-  kotlin("kapt")
   id("maven-publish")
-}
-
-
-kapt {
 }
 
 
@@ -32,11 +28,12 @@ repositories {
 }
 
 val generatedResources = file("$buildDir/generated-resources")
+val generatedSources = file("$buildDir/generated-sources")
 
 sourceSets {
   main {
     java {
-      srcDirs("${buildDir.absolutePath}/tmp/kapt/main/kotlinGenerated/")
+      srcDirs(generatedSources)
     }
 
     resources {
@@ -47,7 +44,6 @@ sourceSets {
 
 
 dependencies {
-  kapt(project(":generator"))
   compileOnly(project(":generator"))
 
   // TODO: have transitive dependencies
@@ -62,31 +58,54 @@ dependencies {
 
   implementation("net.lab0.kuda:annotation:0.1")
   implementation("net.lab0.kuda:s2s:0.1")
+
+  // TEST
+
+  testImplementation("org.assertj:assertj-core:3.12.2")
+
+  val jUnitVersion = "5.3.1"
+  testImplementation("org.junit.jupiter:junit-jupiter-api:$jUnitVersion")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jUnitVersion")
 }
 
 
 tasks {
   val kuda by registering(Task::class) {
+
+    val javaSources = sourceSets.main.get().allJava
+    logger.info(javaSources.srcDirs.joinToString { it.absolutePath })
+
     doLast {
-      val javaSources = sourceSets.main.get().allJava
+
+      val outputPackage = "net.lab0.kuda.example"
 
       javaSources.srcDirs.flatMap { folder ->
         fileTree(folder).filter { file ->
+          logger.info(file.absolutePath)
           file.readText().contains("import " + Kernel::class.qualifiedName)
-        }.map { kernel ->
-          val cuda = K2C(kernel.readText()).transpile()
-          val cudaFile = generatedResources.resolve("net/lab0/kuda/kernel/" + kernel.name + ".cu")
+        }.map { kernelFile ->
+          val cuda = Kotlin2Cuda(kernelFile.readText()).transpile()
+          val outputPackageFolder = outputPackage
+              .split(".")
+              .joinToString("/", postfix = "/")
+          val cudaFile =
+              generatedResources.resolve(
+                  outputPackageFolder + kernelFile.name + ".cu"
+              )
           if (!cudaFile.parentFile.exists()) {
             cudaFile.parentFile.mkdirs()
           }
           cudaFile.writeText(cuda)
+          logger.info("Generated ${kernelFile.name} cuda file to " + cudaFile.absolutePath)
+
+          CallWrapperGenerator(kernelFile.readText(), outputPackage).callWrapperFile.writeTo(generatedSources)
+          logger.info("Generated ${kernelFile.name} kernel wrapper file to " + generatedSources)
 
           logger.info(
-              "Generated cuda kernel:\n$kernel\n$cudaFile"
+              "Generated cuda kernel:\n$kernelFile\n$cudaFile"
           )
         }
       }
-
     }
   }
 

@@ -1,12 +1,12 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.DoNothing
+import net.lab0.kuda.sample.s1.DoNothingKernel
 import org.junit.jupiter.api.Test
 
-class DoNothingTest {
+class DoNothingKernelTest {
   @Test
   fun `can do nothing`() {
-    val cuda = loadAndTranspile(DoNothing::class)
+    val cuda = loadAndTranspile(DoNothingKernel::class)
     assertPtxEquals("""extern "C" __global__ void doNothing(void) {}""", cuda)
   }
 }

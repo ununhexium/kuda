@@ -20,22 +20,25 @@ open class KudaContext {
 
     // To prevent intellij from beeing clever with comparisons
     val someValue = Random(0).nextInt()
-  }
 
-  private var init = false
-  protected fun init() {
-    if (init) return
+    private var init = false
 
-    JCudaDriver.setExceptionsEnabled(true)
+    fun init() {
+      synchronized(init) {
+        if (init) return
 
-    // Initialize the driver and create a context for the first device.
-    JCudaDriver.cuInit(0)
-    val device = CUdevice()
-    JCudaDriver.cuDeviceGet(device, 0)
-    val context = CUcontext()
-    JCudaDriver.cuCtxCreate(context, 0, device)
+        JCudaDriver.setExceptionsEnabled(true)
 
-    init = true
+        // Initialize the driver and create a context for the first device.
+        JCudaDriver.cuInit(0)
+        val device = CUdevice()
+        JCudaDriver.cuDeviceGet(device, 0)
+        val context = CUcontext()
+        JCudaDriver.cuCtxCreate(context, 0, device)
+
+        init = true
+      }
+    }
   }
 
   private var generatedPtx = false
@@ -117,7 +120,6 @@ open class KudaContext {
   }
 
 }
-
 
 
 fun FloatArray.copyToDevice(): CUdeviceptr {

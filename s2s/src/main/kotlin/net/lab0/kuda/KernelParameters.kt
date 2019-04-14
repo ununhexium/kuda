@@ -13,4 +13,9 @@ data class KernelParameters(
     val sharedMemBytes: Int = 0,
     val hStream: CUstream? = null,
     val extra: Pointer? = null
-)
+) {
+  companion object {
+    fun for1D(elementsCount: Int, blockDimX: Int = 512) =
+        KernelParameters(gridDimX = ceil(elementsCount, blockDimX), blockDimX = blockDimX)
+  }
+}

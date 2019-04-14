@@ -209,12 +209,4 @@ class Kotlin2Cuda(private val source: String) {
     return this.split("\n").joinToString("\n") { i + it }
   }
 
-  private fun Node.WithAnnotations.hasAnnotationNamed(name: String): Boolean {
-    return anns.any { it.anns.any { it.names.any { it == name } } }
-  }
-
-  private fun Node.WithModifiers.hasAnnotationNamed(name: String): Boolean {
-    return anns.any { it.anns.any { it.names.any { it == name } } }
-  }
-
 }

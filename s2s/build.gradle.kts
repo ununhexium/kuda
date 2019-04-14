@@ -17,10 +17,13 @@ val classifier = "linux-x86_64"
 dependencies {
 
   implementation("com.github.cretz.kastree:kastree-ast-psi:0.4.0")
+  
+  implementation("com.squareup:kotlinpoet:1.2.0")
 
   implementation("net.lab0.kuda:annotation:0.1")
 
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+  implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.reflections:reflections:0.9.11")
   implementation("org.slf4j:slf4j-api:1.8.0-beta4")
 
@@ -39,8 +42,6 @@ dependencies {
   testImplementation("org.assertj:assertj-core:3.12.2")
   testImplementation("org.slf4j:slf4j-jdk14:1.8.0-beta4")
 
-
-  // TEST
   val jUnitVersion = "5.3.1"
   testImplementation("org.junit.jupiter:junit-jupiter-api:$jUnitVersion")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jUnitVersion")

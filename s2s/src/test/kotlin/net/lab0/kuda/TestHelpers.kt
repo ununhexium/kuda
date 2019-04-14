@@ -2,6 +2,9 @@ package net.lab0.kuda
 
 import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.PropertySpec
 import org.assertj.core.api.Assertions.assertThat
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -60,3 +63,11 @@ fun assertPtxEquals(a: String, b: String) {
   assertThat(ptxA).isEqualTo("%s", ptxB)
 }
 
+fun List<FunSpec>.named(name: String) =
+    this.first { it.name == name }
+
+fun List<PropertySpec>.named(name: String) =
+    this.first { it.name == name }
+
+fun List<ParameterSpec>.named(name: String) =
+    this.first { it.name == name }

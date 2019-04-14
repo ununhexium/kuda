@@ -1,7 +1,7 @@
 package net.lab0.kuda
 
 import net.lab0.kuda.exception.CantConvert
-import net.lab0.kuda.sample.s1.K1
+import net.lab0.kuda.sample.s1.SaxpyKernel
 import net.lab0.kuda.sample.s1.K2
 import net.lab0.kuda.sample.s1.K3
 import net.lab0.kuda.sample.s1.K4
@@ -14,7 +14,7 @@ internal class Kotlin2CudaTest {
 
   @Test
   fun `can convert a simple kotlin kernel to a C kernel`() {
-    val cuda = loadAndTranspile(K1::class)
+    val cuda = loadAndTranspile(SaxpyKernel::class)
 
     val reference =
         """
