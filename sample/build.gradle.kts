@@ -44,7 +44,6 @@ sourceSets {
 
 
 dependencies {
-  compileOnly(project(":generator"))
 
   // TODO: have transitive dependencies
   implementation("com.google.guava:guava:27.1-jre")
@@ -56,7 +55,6 @@ dependencies {
     isTransitive = false
   }
 
-  implementation("net.lab0.kuda:annotation:0.1")
   implementation("net.lab0.kuda:s2s:0.1")
 
   // TEST

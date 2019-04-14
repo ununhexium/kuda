@@ -188,7 +188,7 @@ class CallWrapperGenerator(source: String, private val outputPackage: String) {
                 }
                 // Copy input from host to device
                 .also { builder ->
-                  inputParameters
+                  allParameters
                       .filter { it.isArray() }
                       .forEach { param ->
                         builder

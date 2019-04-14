@@ -9,7 +9,6 @@
 
 rootProject.name = "kuda"
 
-include(":generator")
 include(":annotation")
 include(":s2s")
 include(":sample")
