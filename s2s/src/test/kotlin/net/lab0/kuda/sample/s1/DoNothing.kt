@@ -6,6 +6,7 @@ import net.lab0.kuda.annotation.Kernel
 
 @Kernel
 class DoNothing : KudaContext() {
+  @Suppress("unused")
   @Global
   fun doNothing() {
     // that's it folks!

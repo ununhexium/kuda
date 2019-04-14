@@ -45,16 +45,27 @@ class KernelGenerator : AbstractProcessor() {
   }
 
   override fun process(set: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
+    
     roundEnv.getElementsAnnotatedWith(Kernel::class.java).forEach {
-      val globalFunction = it.enclosedElements.first { e ->
+      val globalFunctions = it.enclosedElements.filter { e ->
         e.kind == ElementKind.METHOD && e.getAnnotation(Global::class.java) != null
       }
-      val executableVisitor = MyVisitor()
-      globalFunction.accept(executableVisitor, null)
 
-      // TODO: if globals count != 1 -> error
+      if (globalFunctions.isEmpty()) {
+        throw IllegalSourceCode("Didn't find any global function")
+      }
+
+      if (globalFunctions.size > 1) {
+        throw IllegalSourceCode("Only 1 global function per source file is supported")
+      }
+
+      val globalFunction = globalFunctions.first()
+
+      val myVisitor = MyVisitor()
+      globalFunction.accept(myVisitor, null)
+
       val className = it.simpleName.toString()
-      generateClass(className, "net.lab0.kuda.generated.kernel", executableVisitor.executables.first())
+      generateClass(className, "net.lab0.kuda.generated.kernel", myVisitor.executables.first())
     }
 
     return true
@@ -67,7 +78,9 @@ class KernelGenerator : AbstractProcessor() {
 
   private fun generateClass(className: String, pack: String, globalFunction: ExecutableElement) {
     // TODO: for return only elements, don't copy from host to device
-    val returned = globalFunction.parameters.filter { it.getAnnotation(Return::class.java) != null }
+    val returned = globalFunction.parameters.filter {
+      it.getAnnotation(Return::class.java) != null
+    }
 
     val file = FileSpec.builder(pack, className + "Generated")
         .addType(
@@ -150,7 +163,6 @@ class KernelGenerator : AbstractProcessor() {
                                 """.trimMargin()
                             )
                         )
-                        // TODO: copy returned data
                         .also { function ->
                           copyDataFromDeviceToHost(returned, function)
                         }

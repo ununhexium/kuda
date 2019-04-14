@@ -14,10 +14,12 @@ class BooleanKernelTest {
           |extern "C"
           |
           |__global__
-          |void booleanStuff()
+          |void booleanStuff(bool * data)
           |{
           |  bool t = true;
           |  bool f = false;
+          |  data[0] = t;
+          |  data[1] = f;
           |}
         """.trimMargin()
     )

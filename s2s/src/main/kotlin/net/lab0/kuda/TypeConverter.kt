@@ -18,10 +18,17 @@ fun convertSimple(simple: Node.TypeRef.Simple): String {
     "Float" -> "float"
     "Int" -> "int"
     "Long" -> "long"
+    "BooleanArray" -> "bool *"
+    "ByteArray" -> "char *"
+    "UByteArray" -> "unsigned char *"
     "DoubleArray" -> "double *"
     "FloatArray" -> "float *"
     "IntArray" -> "int *"
+    "UIntArray" -> "unsigned int *"
     "LongArray" -> "long *"
+    "ULongArray" -> "unsigned long *"
+    "ShortArray" -> "short *"
+    "UShortArray" -> "unsigned short *"
     "Array" -> convertSimple(firstPiece.typeParams.first()?.ref as Node.TypeRef.Simple) + "*"
     else -> throw IllegalStateException("Don't know how to convert $simple")
   }

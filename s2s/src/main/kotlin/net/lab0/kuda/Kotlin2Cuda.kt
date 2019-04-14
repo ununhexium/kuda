@@ -6,7 +6,7 @@ import kastree.ast.psi.Parser
 import net.lab0.kuda.exception.CantConvert
 import java.lang.StringBuilder
 
-class K2C(private val source: String) {
+class Kotlin2Cuda(private val source: String) {
   fun transpile(): String {
     val ast = Parser.parseFile(source)
     val output = StringBuilder()
@@ -193,27 +193,28 @@ class K2C(private val source: String) {
 
     return out
   }
-}
 
-private fun Visitor.Companion.filter(node: Node, predicate: (Node) -> Boolean): List<Node> {
-  val result = mutableListOf<Node>()
-  Visitor.visit(node) { n, _ ->
-    if (n != null && predicate(n)) {
-      result.add(n)
+  private fun Visitor.Companion.filter(node: Node, predicate: (Node) -> Boolean): List<Node> {
+    val result = mutableListOf<Node>()
+    Visitor.visit(node) { n, _ ->
+      if (n != null && predicate(n)) {
+        result.add(n)
+      }
     }
+    return result
   }
-  return result
-}
 
-private fun String.injectIndent(indent: Int): String {
-  val i = " ".repeat(indent)
-  return this.split("\n").joinToString("\n") { i + it }
-}
+  private fun String.injectIndent(indent: Int): String {
+    val i = " ".repeat(indent)
+    return this.split("\n").joinToString("\n") { i + it }
+  }
 
-private fun Node.WithAnnotations.hasAnnotationNamed(name: String): Boolean {
-  return anns.any { it.anns.any { it.names.any { it == name } } }
-}
+  private fun Node.WithAnnotations.hasAnnotationNamed(name: String): Boolean {
+    return anns.any { it.anns.any { it.names.any { it == name } } }
+  }
 
-private fun Node.WithModifiers.hasAnnotationNamed(name: String): Boolean {
-  return anns.any { it.anns.any { it.names.any { it == name } } }
+  private fun Node.WithModifiers.hasAnnotationNamed(name: String): Boolean {
+    return anns.any { it.anns.any { it.names.any { it == name } } }
+  }
+
 }

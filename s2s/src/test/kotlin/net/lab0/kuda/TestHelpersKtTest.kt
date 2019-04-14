@@ -57,6 +57,6 @@ internal class TestHelpersKtTest {
 
     //generating unified diff format
 
-    assertThat(unifiedDiff(a,b)).isEqualTo("%S", reference)
+    assertThat(unifiedDiff(a,b)).isEqualTo("%s", reference)
   }
 }

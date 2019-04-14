@@ -10,16 +10,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-internal class K2CTest {
+internal class Kotlin2CudaTest {
 
   @Test
   fun `can convert a simple kotlin kernel to a C kernel`() {
-    // TODO: find how to get that file either via a class loader or by copying it to the resources with the annotation processor?
-    val source = loadSource(K1::class)
+    val cuda = loadAndTranspile(K1::class)
 
-    val cuda = K2C(source).transpile()
-
-    assertThat(cuda).isEqualTo(
+    val reference =
         """
           |extern "C"
           |
@@ -32,16 +29,15 @@ internal class K2CTest {
           |  };
           |}
         """.trimMargin()
-    )
+
+    assertPtxEquals(cuda, reference)
   }
 
   @Test
   fun `can convert a kernel using 2D array`() {
-    val source = loadSource(K2::class)
+    val cuda = loadAndTranspile(K2::class)
 
-    val cuda = K2C(source).transpile()
-
-    assertThat(cuda).isEqualTo(
+    val expected =
         """
           |extern "C"
           |
@@ -53,14 +49,14 @@ internal class K2CTest {
           |  C[i][j] = A[i][j] + B[i][j];
           |}
         """.trimMargin()
-    )
+
+    assertPtxEquals(cuda, expected)
   }
 
   @Test
   fun `output a meaningful error message when the @Global annotation is missing`() {
     val exception = assertThrows<CantConvert> {
-      val source = loadSource(K3::class)
-      K2C(source).transpile()
+      loadAndTranspile(K3::class)
     }
 
     assertThat(exception.message).contains(
@@ -70,11 +66,9 @@ internal class K2CTest {
 
   @Test
   fun `can add constant`() {
-    val source = loadSource(K4::class)
+    val cuda = loadAndTranspile(K4::class)
 
-    val cuda = K2C(source).transpile()
-
-    assertThat(cuda).isEqualTo(
+    val expected =
         """
           |extern "C"
           |
@@ -85,14 +79,14 @@ internal class K2CTest {
           |  ns[idx] = ns[idx] + n;
           |}
         """.trimMargin()
-    )
+
+    assertPtxEquals(cuda, expected)
   }
 
   @Test
   fun `output error message when the variable type is not specified`() {
     val exception = assertThrows<CantConvert> {
-      val source = loadSource(K5::class)
-      K2C(source).transpile()
+      loadAndTranspile(K5::class)
     }
 
     assertThat(exception.message).contains(

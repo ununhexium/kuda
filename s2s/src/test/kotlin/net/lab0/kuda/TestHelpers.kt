@@ -2,9 +2,7 @@ package net.lab0.kuda
 
 import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
-import kastree.ast.Node
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.description.Description
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Files
@@ -28,7 +26,7 @@ fun loadSource(kClass: KClass<*>): String {
 }
 
 fun loadAndTranspile(kClass: KClass<*>) =
-    K2C(loadSource(kClass)).transpile()
+    Kotlin2Cuda(loadSource(kClass)).transpile()
 
 fun unifiedDiff(a: String, b: String): String {
   val diff = DiffUtils.diff(a, b)
