@@ -6,7 +6,7 @@ A freshly baked kernel wrapper ready to be executed.
 
 This is a proof of concept to provide a way to write Cuda kernels in Kotlin.
 The Kotlin code is translated from Kotlin source code into CPP source code.
-That code is then compile to a `ptx` with nvcc. 
+That code is then compile to a `ptx` with `nvcc`. 
 
 
 ## Hello Kuda
@@ -56,7 +56,8 @@ to forward the kernel call to the graphics card.
 
 ## Features
 
-**⚠ Very experimental.**
+#⚠
+**Very experimental.**
 
 Currently supports some basic C-like operations with a lot of restrictions.
 
@@ -66,7 +67,7 @@ Currently supports some basic C-like operations with a lot of restrictions.
 Kotlin data types are mapped to their C equivalent according to the following table.
  
  
-| Kotlin       | C               |
+| Kotlin       | C++             |
 |-------------:|:----------------|
 | Boolean      | bool            |
 | Byte         | char            |
@@ -114,7 +115,7 @@ Arithmetic
 * `--` postfixed
 
 Relational
-* `(` `)` priority, not funtion call 
+* `(` `)` priority, not function call 
 * `>` 
 * `<` 
 * `>=` 
@@ -126,14 +127,17 @@ Logical
 * `!`
 
 Binary
+* `&`
+* `|`
+* `^`
 
-| Kotlin | C    |
+| Kotlin | C++  |
 |-------:|:-----|
 |and     |  &   |
 |or      |&#124;|
 |xor     | ^    |
 
-### Branches
+### Control structures
 
 * `while`
 * `if`
@@ -148,13 +152,15 @@ Supports C matrix notation `int [][] foo` and `int ** foo`
 with nested arrays: `val foo: Array<IntArray>`
 
 
-No conversion for `Char`s.
-
 -------------------------------
 
 ## Limitations
 
 A lot... ʘ︵ʘ
+
+### No chars translation
+
+No conversion for `Char`s and `CharArray`s.
 
 ### Variable names are completely unchecked.
 
@@ -250,9 +256,10 @@ Write your kernels in C, with the true Cuda API and call them from the JVM.
 
 ### Aparapi
 
-This is not translating from bytecode to cuda.
+Kuda is not translating from bytecode to cuda.
+It's source to source.
 
-For such an approach, you may have a look at 
+For a bytecode to kernel approach, you may have a look at 
 [aparapi](https://github.com/aparapi/aparapi) 
 which provides such a mechanism for OpenCL.
 
@@ -264,6 +271,6 @@ https://github.com/nativelibs4java/JavaCL
 
 http://jogamp.org/jocl/www/
 
-### LWJGL open LC wrappers
+### LWJGL openGL wrappers
 
 https://www.lwjgl.org/
