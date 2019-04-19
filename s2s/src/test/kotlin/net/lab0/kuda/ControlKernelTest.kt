@@ -1,26 +1,26 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.WhileKernel
-import org.assertj.core.api.Assertions.assertThat
+import net.lab0.kuda.sample.ControlKernel
 import org.junit.jupiter.api.Test
-import java.nio.file.Files
 
-class WhileKernelTest {
+class ControlKernelTest {
 
   @Test
   fun `can convert while loops`() {
-    val source = loadAndTranspile(WhileKernel::class)
+    val source = loadAndTranspile(ControlKernel::class)
 
     val reference = """
       |extern "C"
       |
       |__global__
-      |void whileLoop()
+      |void whileLoop(bool * bools)
       |{
       |  int idx = blockDim.x;
-      |  bool b;
       |  while (idx < 10) {
-      |    b = true;
+      |    bools[idx] = true;
+      |    if(5 == idx) {
+      |      bools[idx] = false;
+      |    }
       |  }
       |}
     """.trimMargin()

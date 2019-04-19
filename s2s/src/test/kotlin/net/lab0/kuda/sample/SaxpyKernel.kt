@@ -1,4 +1,4 @@
-package net.lab0.kuda.sample.s1
+package net.lab0.kuda.sample
 
 import net.lab0.kuda.KudaContext
 import net.lab0.kuda.annotation.Global

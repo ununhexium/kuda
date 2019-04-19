@@ -1,6 +1,6 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.AddConstantKernel
+import net.lab0.kuda.sample.AddConstantKernel
 import org.junit.jupiter.api.Test
 
 class AddConstantKernelTest {

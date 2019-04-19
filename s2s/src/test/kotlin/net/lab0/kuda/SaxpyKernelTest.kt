@@ -1,6 +1,6 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.SaxpyKernel
+import net.lab0.kuda.sample.SaxpyKernel
 import org.junit.jupiter.api.Test
 
 class SaxpyKernelTest  {

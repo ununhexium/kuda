@@ -124,15 +124,3 @@ open class KudaContext {
   }
 
 }
-
-
-fun FloatArray.copyToDevice(): CUdeviceptr {
-  val devicePointer = CUdeviceptr()
-  JCudaDriver.cuMemAlloc(devicePointer, this.cuSize())
-  JCudaDriver.cuMemcpyHtoD(devicePointer, this.cuPtr(), this.cuSize())
-  return devicePointer
-}
-
-fun FloatArray.cuSize() = Sizeof.FLOAT.toLong() * this.size
-
-fun FloatArray.cuPtr() = Pointer.to(this)

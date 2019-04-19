@@ -91,9 +91,18 @@ class Kotlin2Cuda(private val source: String) {
       is Node.Expr.Brace -> convertBrace(expr, indent)
       is Node.Expr.UnaryOp -> convertUnaryOp(expr, indent)
       is Node.Expr.Paren -> convertParen(expr, indent)
+      is Node.Expr.Call -> convertCall(expr, indent)
       // TODO: more
       else -> throw CantConvert(expr)
     }.injectIndent(indent)
+  }
+
+  private fun convertCall(expr: Node.Expr.Call, indent: Int): String {
+    val isConstructorCall = true
+    if (isConstructorCall) {
+
+    }
+    return ""
   }
 
   private fun convertParen(paren: Node.Expr.Paren, indent: Int): String {
@@ -117,7 +126,6 @@ class Kotlin2Cuda(private val source: String) {
   }
 
   private fun convertWhile(`while`: Node.Expr.While, indent: Int): String {
-    val i = " ".repeat(indent)
     return """
       |while (${convertExpr(`while`.expr, 0)}) {
       |${convertExpr(`while`.body, indent)}
@@ -152,21 +160,33 @@ class Kotlin2Cuda(private val source: String) {
 
   private fun convertBinaryOperation(binaryOp: Node.Expr.BinaryOp, indent: Int): String {
     return if (binaryOp.isFunctionCall()) {
-      val call = binaryOp.rhs as? Node.Expr.Call ?: throw CantConvert(binaryOp)
-      val expr = call.expr as? Node.Expr.Name ?: throw CantConvert(binaryOp)
-      val rhsName = call.args.first().expr as Node.Expr.Name
-
-      convertExpr(binaryOp.lhs) +
-          when (expr.name) {
-            "and" -> " & "
-            "or" -> " | "
-            "xor" -> " ^ "
-            else -> throw CantConvert(expr.name)
-          } + convertName(rhsName, indent) + ";"
-
+      when {
+        binaryOp.isBitOperator() -> convertBitOperator(binaryOp, indent)
+        binaryOp.isPrimitiveCast() -> convertPrimitiveCast(binaryOp, indent)
+        else -> throw CantConvert(binaryOp)
+      }
     } else {
       convertExpr(binaryOp.lhs) + convertOper(binaryOp.oper) + convertExpr(binaryOp.rhs)
     }
+  }
+
+  private fun convertPrimitiveCast(binaryOp: Node.Expr.BinaryOp, indent: Int): String {
+    val toType = binaryOp.rhsAsCall().expr.asName().name.substring(2)
+    return "(" + primitiveEquivalents.first { it.kotlinName == toType }.cName + ")" + binaryOp.lhs.asName().name
+  }
+
+  private fun convertBitOperator(binaryOp: Node.Expr.BinaryOp, indent: Int): String {
+    val call = binaryOp.rhs as? Node.Expr.Call ?: throw CantConvert(binaryOp)
+    val expr = call.expr as? Node.Expr.Name ?: throw CantConvert(binaryOp)
+    val rhsName = call.args.first().expr as Node.Expr.Name
+
+    return convertExpr(binaryOp.lhs) +
+        when (expr.name) {
+          "and" -> " & "
+          "or" -> " | "
+          "xor" -> " ^ "
+          else -> throw CantConvert(expr.name)
+        } + convertName(rhsName, indent) + ";"
   }
 
   private fun convertOper(oper: Node.Expr.BinaryOp.Oper, indent: Int = 0): String {
@@ -256,4 +276,22 @@ class Kotlin2Cuda(private val source: String) {
 
     return dot && call != null
   }
+
+  private fun Node.Expr.BinaryOp.rhsAsCall() =
+      this.rhs as? Node.Expr.Call ?: throw CantConvert(this)
+
+  private fun Node.Expr.BinaryOp.isBitOperator(): Boolean {
+    val call = this.rhsAsCall()
+    val expr = call.expr.asName()
+    return call.args.size == 1 && expr.name in listOf("and", "or", "xor")
+  }
+
+  private fun Node.Expr.BinaryOp.isPrimitiveCast(): Boolean {
+    val expr = this.rhsAsCall().expr.asName()
+    return expr.name in primitiveEquivalents.map { "to" + it.kotlinName }
+  }
+
+  private fun Node.Expr.asName() =
+      this as? Node.Expr.Name ?: throw CantConvert(this)
 }
+

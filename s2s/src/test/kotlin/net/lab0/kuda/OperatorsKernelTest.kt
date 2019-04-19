@@ -1,6 +1,6 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.OperatorsKernel
+import net.lab0.kuda.sample.OperatorsKernel
 import org.junit.jupiter.api.Test
 
 class OperatorsKernelTest {

@@ -1,6 +1,6 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.Matrix2DKernel
+import net.lab0.kuda.sample.Matrix2DKernel
 import org.junit.jupiter.api.Test
 
 internal class Matrix2DKernelTest {

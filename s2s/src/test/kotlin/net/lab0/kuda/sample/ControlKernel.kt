@@ -1,17 +1,19 @@
-package net.lab0.kuda.sample.s1
+package net.lab0.kuda.sample
 
 import net.lab0.kuda.KudaContext
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
 
 @Kernel
-class WhileKernel : KudaContext() {
+class ControlKernel : KudaContext() {
   @Global
-  fun whileLoop() {
+  fun whileLoop(bools: BooleanArray) {
     val idx: Int = blockDim.x
-    var b: Boolean
     while (idx < 10) {
-      b = true
+      bools[idx] = true
+      if (idx == 5) {
+        bools[idx] = false
+      }
     }
   }
 }

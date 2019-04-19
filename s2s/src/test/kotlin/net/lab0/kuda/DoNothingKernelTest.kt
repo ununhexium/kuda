@@ -1,6 +1,6 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.DoNothingKernel
+import net.lab0.kuda.sample.DoNothingKernel
 import org.junit.jupiter.api.Test
 
 class DoNothingKernelTest {

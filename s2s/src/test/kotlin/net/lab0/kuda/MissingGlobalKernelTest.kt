@@ -1,7 +1,7 @@
 package net.lab0.kuda
 
 import net.lab0.kuda.exception.CantConvert
-import net.lab0.kuda.sample.s1.MissingGlobalKernel
+import net.lab0.kuda.sample.MissingGlobalKernel
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

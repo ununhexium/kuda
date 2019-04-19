@@ -1,6 +1,6 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.BooleanKernel
+import net.lab0.kuda.sample.BooleanKernel
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

@@ -69,6 +69,13 @@ fun assertPtxEquals(a: String, b: String) {
   val ptxA = compileToPtx(a)
   val ptxB = compileToPtx(b)
 
+  log.info("""
+    |Compared
+    |$a
+    |to
+    |$b
+  """.trimMargin())
+
   // unifiedDiff(a, b)
   assertThat(ptxA).isEqualTo("%s", ptxB)
 }

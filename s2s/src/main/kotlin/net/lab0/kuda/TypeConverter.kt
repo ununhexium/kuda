@@ -13,6 +13,24 @@ fun convertType(type: Node.Type): String {
 private val ARRAY_REGEX = Regex("(?<type>.+)Array")
 private val UNSIGNED_REGEX = Regex("U(?<type>.+)")
 
+data class PrimitiveEquivalent(val kotlinName: String, val cName: String)
+
+val primitiveEquivalents = listOf(
+    PrimitiveEquivalent("Boolean", "bool"),
+
+    PrimitiveEquivalent("Byte", "char"),
+    PrimitiveEquivalent("UByte", "unsigned char"),
+    PrimitiveEquivalent("Short", "short"),
+    PrimitiveEquivalent("UShort", "unsigned short"),
+    PrimitiveEquivalent("Int", "int"),
+    PrimitiveEquivalent("UInt", "unsigned int"),
+    PrimitiveEquivalent("Long", "long"),
+    PrimitiveEquivalent("ULong", "unsigned long"),
+
+    PrimitiveEquivalent("Float", "float"),
+    PrimitiveEquivalent("Double", "double")
+)
+
 fun convertSimple(simple: Node.TypeRef.Simple): String {
   val firstPiece = simple.pieces.first()
 
@@ -25,21 +43,10 @@ fun convertSimpleName(name: String, firstPiece: Node.TypeRef.Simple.Piece): Stri
     return convertSimpleName(array.groups["type"]!!.value, firstPiece) + " *"
   }
 
-  val unsigned = UNSIGNED_REGEX.matchEntire(name)
-  if (unsigned != null) {
-    return "unsigned " + convertSimpleName(unsigned.groups["type"]!!.value, firstPiece)
-  }
-
   return when (name) {
-    "Boolean" -> "bool"
-    "Byte" -> "char"
-    "Short" -> "short"
-    "Int" -> "int"
-    "Long" -> "long"
-
-    "Float" -> "float"
-    "Double" -> "double"
     "Array" -> convertSimple(firstPiece.typeParams.first()?.ref as Node.TypeRef.Simple) + " *"
-    else -> null
+    else -> primitiveEquivalents.first {
+      it.kotlinName == name
+    }.cName
   }
 }

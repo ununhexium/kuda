@@ -1,15 +1,15 @@
-package net.lab0.kuda.sample.s1
+package net.lab0.kuda.sample
 
 import net.lab0.kuda.KudaContext
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
 
 @Kernel
-class DataTypeKernel: KudaContext() {
+class DataTypeKernel : KudaContext() {
   @UseExperimental(ExperimentalUnsignedTypes::class)
   @Global
   fun dataTypes(
-      aBool:Boolean,
+      aBool: Boolean,
       bools: BooleanArray,
 
       aByte: Byte,
@@ -17,25 +17,25 @@ class DataTypeKernel: KudaContext() {
       aUByte: UByte,
       ubytes: UByteArray,
 
-      aShort:Short,
+      aShort: Short,
       shorts: ShortArray,
-      auShort:UShort,
+      auShort: UShort,
       ushorts: UShortArray,
 
-      aInt:Int,
+      aInt: Int,
       ints: IntArray,
-      aUInt:UInt,
+      aUInt: UInt,
       uints: UIntArray,
 
-      aLong:Long,
+      aLong: Long,
       longs: LongArray,
       aULong: ULong,
       ulongs: ULongArray,
 
-      aFloat:Float,
+      aFloat: Float,
       floats: FloatArray,
 
-      aDouble:Double,
+      aDouble: Double,
       doubles: DoubleArray
   ) {
     bools[0] = aBool
@@ -49,7 +49,7 @@ class DataTypeKernel: KudaContext() {
     ints[0] = aInt
     uints[0] = aUInt
 
-    // TODO: but why? To be able to check for underflow while keeping the compiler on the JVM?!?! Isn't that handeled as a BigInt internally in the compiler?
+    // TODO: but why? To be able to check for underflow while keeping the compiler on the JVM?!?! Isn't that handled as a BigInt internally in the compiler?
     longs[0] = aLong
     ulongs[0] = aULong
 

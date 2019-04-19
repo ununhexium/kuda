@@ -62,7 +62,7 @@ to forward the kernel call to the graphics card.
 Currently supports some basic C-like operations with a lot of restrictions.
 
 
-### Data types
+### [Data types](s2s/src/test/kotlin/net/lab0/kuda/sample/DataTypeKernel.kt)
 
 Kotlin data types are mapped to their C equivalent according to the following table.
  
@@ -97,7 +97,14 @@ Kotlin data types are mapped to their C equivalent according to the following ta
 
 Uses kotlin 1.3 experimental unsigned types.
 
-### Operators
+### [Cast](s2s/src/test/kotlin/net/lab0/kuda/sample/PrimitivesCastKernel.kt)
+
+Casts are supported with the `variable.toXxx()` 
+kotlin cast notation for all primitives types 
+expect between float and unsigned types as Kotlin 
+doesn't propose it.
+
+### [Operators](s2s/src/test/kotlin/net/lab0/kuda/sample/OperatorsKernel.kt)
 
 Tested operators are
 

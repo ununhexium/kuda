@@ -1,6 +1,6 @@
 package net.lab0.kuda
 
-import net.lab0.kuda.sample.s1.DataTypeKernel
+import net.lab0.kuda.sample.DataTypeKernel
 import org.junit.jupiter.api.Test
 
 class DataTypeKernelTest {

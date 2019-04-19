@@ -21,7 +21,3 @@ data class Nvcc(
     )
   }
 }
-
-fun main() {
-  println(Nvcc(ptx = Paths.get("the","foo")))
-}
