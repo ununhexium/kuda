@@ -1,4 +1,4 @@
-package net.lab0.kuda.sample
+package net.lab0.kuda.sample.correct
 
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel

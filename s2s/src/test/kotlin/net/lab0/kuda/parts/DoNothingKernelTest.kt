@@ -1,6 +1,8 @@
-package net.lab0.kuda
+package net.lab0.kuda.parts
 
-import net.lab0.kuda.sample.DoNothingKernel
+import net.lab0.kuda.assertPtxEquals
+import net.lab0.kuda.loadAndTranspile
+import net.lab0.kuda.sample.correct.DoNothingKernel
 import org.junit.jupiter.api.Test
 
 class DoNothingKernelTest {

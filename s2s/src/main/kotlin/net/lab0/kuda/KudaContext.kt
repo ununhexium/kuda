@@ -14,6 +14,10 @@ import java.io.IOException
 import java.net.URL
 import kotlin.random.Random
 
+/**
+ * A variety of placeholder to be able to use Cuda-specific ideas.
+ * Each kernel must extend it.
+ */
 open class KudaContext {
   companion object {
     private val log: Logger by lazy { LoggerFactory.getLogger(this::class.java.name) }

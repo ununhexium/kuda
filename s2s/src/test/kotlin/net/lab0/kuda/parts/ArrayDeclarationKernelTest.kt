@@ -1,9 +1,12 @@
-package net.lab0.kuda
+package net.lab0.kuda.parts
 
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
-import net.lab0.kuda.sample.ArrayDeclarationKernel
+import net.lab0.kuda.assertPtxEquals
+import net.lab0.kuda.loadAndTranspile
+import net.lab0.kuda.sample.correct.ArrayDeclarationKernel
 
+// TODO: test and implement
 @Kernel
 class ArrayDeclarationKernelTest {
   @Global

@@ -1,19 +1,21 @@
-package net.lab0.kuda.sample
+package net.lab0.kuda.sample.correct
 
 import net.lab0.kuda.KudaContext
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
+import net.lab0.kuda.annotation.Return
 
 @Kernel
 class MandelbrotKernel : KudaContext() {
   @Global
-  fun mandelbrot(reals: DoubleArray, imags: DoubleArray, iterationLimit: Long, iterations: LongArray) {
+  // TODO: add @NoInput annotation to tell that this will never be input in the wrapper
+  fun mandelbrot(reals: DoubleArray, imags: DoubleArray, iterationLimit: Long, @Return iterations: LongArray) {
     val idx: Int = blockIdx.x * blockDim.x + threadIdx.x
 
     val real: Double = reals[idx]
     val imag: Double = imags[idx]
-    var real1: Double = real
-    var imag1: Double = imag
+    var real1: Double = 0.0
+    var imag1: Double = 0.0
     var real2: Double
     var imag2: Double
 
@@ -30,8 +32,4 @@ class MandelbrotKernel : KudaContext() {
 
     iterations[idx] = iter
   }
-}
-
-fun main() {
-//  val mandelbrot = MandelbrotKernel
 }

@@ -6,7 +6,8 @@ import java.nio.file.Paths
 
 data class Nvcc(
     val ptx: Path,
-    val outputFile: Path = Files.createTempDirectory(null).resolve(ptx.fileName.toFile().name),
+    //Files.createTempDirectory(null).resolve(ptx.fileName.toFile().name)
+    val outputFile: Path = Paths.get("/tmp", "ramdisk"),
     val machine: String = System.getProperty("sun.arch.data.model") ?: "64",
     val nvccBinary: String = Config.nvccPath
 ) {

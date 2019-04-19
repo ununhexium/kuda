@@ -172,7 +172,7 @@ class Kotlin2Cuda(private val source: String) {
 
   private fun convertPrimitiveCast(binaryOp: Node.Expr.BinaryOp, indent: Int): String {
     val toType = binaryOp.rhsAsCall().expr.asName().name.substring(2)
-    return "(" + primitiveEquivalents.first { it.kotlinName == toType }.cName + ")" + binaryOp.lhs.asName().name
+    return "(" + primitiveEquivalents.first { it.kClass.simpleName == toType }.cName + ")" + binaryOp.lhs.asName().name
   }
 
   private fun convertBitOperator(binaryOp: Node.Expr.BinaryOp, indent: Int): String {
@@ -288,7 +288,7 @@ class Kotlin2Cuda(private val source: String) {
 
   private fun Node.Expr.BinaryOp.isPrimitiveCast(): Boolean {
     val expr = this.rhsAsCall().expr.asName()
-    return expr.name in primitiveEquivalents.map { "to" + it.kotlinName }
+    return expr.name in primitiveEquivalents.map { "to" + it.kClass.simpleName }
   }
 
   private fun Node.Expr.asName() =

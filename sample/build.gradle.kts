@@ -1,5 +1,6 @@
 import net.lab0.kuda.Kotlin2Cuda
 import net.lab0.kuda.annotation.Kernel
+import net.lab0.kuda.exception.CantConvert
 import net.lab0.kuda.wrapper.CallWrapperGenerator
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -70,39 +71,55 @@ dependencies {
 tasks {
   val kuda by registering(Task::class) {
 
+    val testSources = project(":s2s").sourceSets.test.get().allJava
     val javaSources = sourceSets.main.get().allJava
-    logger.info(javaSources.srcDirs.joinToString { it.absolutePath })
+    val allSources = javaSources.srcDirs + testSources.srcDirs
+    logger.info(allSources.joinToString { it.absolutePath })
 
     doLast {
 
       val outputPackage = "net.lab0.kuda.example"
 
-      javaSources.srcDirs.flatMap { folder ->
-        fileTree(folder).filter { file ->
-          logger.info(file.absolutePath)
-          file.readText().contains("import " + Kernel::class.qualifiedName)
-        }.map { kernelFile ->
-          val cuda = Kotlin2Cuda(kernelFile.readText()).transpile()
-          val outputPackageFolder = outputPackage
-              .split(".")
-              .joinToString("/", postfix = "/")
-          val cudaFile =
-              generatedResources.resolve(
-                  outputPackageFolder + kernelFile.name + ".cu"
-              )
-          if (!cudaFile.parentFile.exists()) {
-            cudaFile.parentFile.mkdirs()
-          }
-          cudaFile.writeText(cuda)
-          logger.info("Generated ${kernelFile.name} cuda file to " + cudaFile.absolutePath)
+      allSources.flatMap { folder ->
+        fileTree(folder)
+            .filter { file ->
+//              logger.info(file.absolutePath)
+              file.readText().split("\n").any {
+                it.matches(Regex("^import " + Kernel::class.qualifiedName))
+              }
+            }
+            .filter { file ->
+              logger.debug("considering $file")
+              // only try to convert valid test kernels
+              file.path.contains("correct")
+            }
+            .map { kernelFile ->
+              logger.debug("Converting $kernelFile ...")
+              try {
+                val cuda = Kotlin2Cuda(kernelFile.readText()).transpile()
+                val outputPackageFolder = outputPackage
+                    .split(".")
+                    .joinToString("/", postfix = "/")
+                val cudaFile =
+                    generatedResources.resolve(
+                        outputPackageFolder + kernelFile.name + ".cu"
+                    )
+                if (!cudaFile.parentFile.exists()) {
+                  cudaFile.parentFile.mkdirs()
+                }
+                cudaFile.writeText(cuda)
+                logger.info("Generated ${kernelFile.name} cuda file to " + cudaFile.absolutePath)
 
-          CallWrapperGenerator(kernelFile.readText(), outputPackage).callWrapperFile.writeTo(generatedSources)
-          logger.info("Generated ${kernelFile.name} kernel wrapper file to " + generatedSources)
+                CallWrapperGenerator(kernelFile.readText(), outputPackage).callWrapperFile.writeTo(generatedSources)
+                logger.info("Generated ${kernelFile.name} kernel wrapper file to " + generatedSources)
 
-          logger.info(
-              "Generated cuda kernel:\n$kernelFile\n$cudaFile"
-          )
-        }
+                logger.info(
+                    "Generated cuda kernel:\n$kernelFile\n$cudaFile"
+                )
+              } catch (e: CantConvert) {
+                logger.warn("Can't convert $kernelFile: ", e)
+              }
+            }
       }
     }
   }

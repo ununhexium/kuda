@@ -8,11 +8,10 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.asTypeName
 import jcuda.Pointer
-import jcuda.Sizeof
 import jcuda.driver.CUdeviceptr
 import jcuda.driver.CUfunction
 import jcuda.driver.CUmodule
@@ -24,13 +23,10 @@ import net.lab0.kuda.KernelParameters
 import net.lab0.kuda.KudaContext
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Return
-import net.lab0.kuda.exception.CantConvert
 import net.lab0.kuda.hasAnnotation
 import net.lab0.kuda.withAnnotation
 import javax.lang.model.element.Element
-import javax.lang.model.type.ArrayType
 import javax.lang.model.type.TypeKind
-import kotlin.reflect.KClass
 
 private val Node.Decl.Func.Param.devicePointerName: String
   get() = "devicePointer_" + this.name
@@ -70,10 +66,10 @@ class CallWrapperGenerator(source: String, private val outputPackage: String) {
     }
   }
 
-  private val returnType: ClassName by lazy {
+  private val returnType: TypeName by lazy {
     when {
       returnParameters.isEmpty() -> Unit::class.asClassName()
-      returnParameters.size == 1 -> returnParameters.first().type!!.asKClass().asClassName()
+      returnParameters.size == 1 -> returnParameters.first().type!!.asTypeName()
       else -> TODO("more than 1 return param")
     }
   }
@@ -113,7 +109,7 @@ class CallWrapperGenerator(source: String, private val outputPackage: String) {
                     (allParameters).map {
                       ParameterSpec
                           // TODO: support default parameters? Copy them here
-                          .builder(it.name, it.type!!.asKClass().asTypeName())
+                          .builder(it.name, it.type!!.asTypeName())
                           .build()
                     }
                 )
@@ -131,19 +127,13 @@ class CallWrapperGenerator(source: String, private val outputPackage: String) {
                 .addCode(
                     """
                       |
-                      |val ptxFileName = compileCudaToPtx(%T.getResource(cudaResourceName))
-                      |
-                    """.trimMargin(),
-                    Resources::class // TODO: no need to depend on guava
-                )
-                .addCode(
-                    """
-                      |
                       |// Load the ptx file.
+                      |val ptxFileName = compileCudaToPtx(%T.getResource(cudaResourceName))
                       |val module = %T()
                       |%T.cuModuleLoad(module, ptxFileName)
                       |
                     """.trimMargin(),
+                    Resources::class, // TODO: no need to depend on guava
                     CUmodule::class,
                     JCudaDriver::class
                 )
@@ -217,7 +207,7 @@ class CallWrapperGenerator(source: String, private val outputPackage: String) {
                       CodeBlock.of("%T.to(%L)", Pointer::class, param.devicePointerName)
                     } else {
                       CodeBlock
-                          .of("%T.to(%T(1){%L})", Pointer::class, param.type!!.asKClass().toArrayType(), param.name)
+                          .of("%T.to(%T(1){%L})", Pointer::class, param.type!!.toArrayType(), param.name)
                     }
                   }
                   builder.addCode(
@@ -293,7 +283,7 @@ class CallWrapperGenerator(source: String, private val outputPackage: String) {
                   }
                 }
                 // Freedom!
-                .also {builder ->
+                .also { builder ->
                   allParameters
                       .filter { it.isArray() }
                       .forEach { param ->
@@ -334,82 +324,5 @@ class CallWrapperGenerator(source: String, private val outputPackage: String) {
 
   val callWrapperFile by lazy {
     FileSpec.get(className.packageName, callWrapper)
-  }
-
-  private val arrayWrap: (Element, String) -> String = { element, name ->
-    val kind = element.asType().kind
-    when (kind) {
-      TypeKind.BOOLEAN -> "BooleanArray(1){$name}"
-      TypeKind.INT -> "IntArray(1){$name}"
-      TypeKind.LONG -> "LongArray(1){$name}"
-      TypeKind.ARRAY -> name
-      // TODO add other types
-      else -> throw IllegalStateException("The kind $kind is not supported")
-    }
-  }
-}
-
-private fun KClass<*>.toArrayType(): KClass<*> {
-  return when (this) {
-    Byte::class -> ByteArray::class
-    UByte::class -> UByteArray::class
-    Int::class -> IntArray::class
-    UInt::class -> UIntArray::class
-    Long::class -> LongArray::class
-    ULong::class -> ULongArray::class
-    Short::class -> ShortArray::class
-    UShort::class -> UShortArray::class
-
-    Char::class -> CharArray::class
-    Double::class -> DoubleArray::class
-    Float::class -> FloatArray::class
-
-    else -> throw CantConvert("Can't get size of $this")
-  }
-}
-
-private fun Node.Decl.Func.Param.isArray(): Boolean {
-  // TODO: in what case is there more than 1 piece? Is that for classes generics?
-  val ref = this.type!!.ref as Node.TypeRef.Simple
-  val firstPiece = ref.pieces.first()
-  return firstPiece.name.matches(Regex("(U?(Byte|Int|Long|Short)|Char|Float|Double)Array"))
-}
-
-private fun Node.Decl.Func.Param.sizeOf() = findSizeOf(this)
-
-private fun Node.Type.asKClass(): KClass<*> {
-  val simple = this.ref as? Node.TypeRef.Simple
-      ?: throw IllegalArgumentException("Can't extract classname from $this")
-
-  // TODO: can there be more than 1 piece?
-  if (simple.pieces.size > 1) throw IllegalArgumentException("Don't know how to handle multiple pieces $this")
-  val firstPiece = simple.pieces.first()
-
-  return when (firstPiece.name) {
-    "Float" -> Float::class
-    "Int" -> Int::class
-    "FloatArray" -> FloatArray::class
-    "IntArray" -> IntArray::class
-    else -> TODO("Convert type $firstPiece")
-    // TODO: Doesnt work :( else -> Class.forName(firstPiece.name).kotlin.asClassName()
-  }
-}
-
-private fun findSizeOf(param: Node.Decl.Func.Param): CodeBlock {
-  return when (param.type!!.asKClass()) {
-    // TODO: int test for each of them
-    ByteArray::class -> CodeBlock.of("%T.BYTE", Sizeof::class)
-    UByteArray::class -> CodeBlock.of("%T.BYTE", Sizeof::class)
-    IntArray::class -> CodeBlock.of("%T.INT", Sizeof::class)
-    UIntArray::class -> CodeBlock.of("%T.INT", Sizeof::class)
-    LongArray::class -> CodeBlock.of("%T.LONG", Sizeof::class)
-    ULongArray::class -> CodeBlock.of("%T.LONG", Sizeof::class)
-    ShortArray::class -> CodeBlock.of("%T.SHORT", Sizeof::class)
-    UShortArray::class -> CodeBlock.of("%T.SHORT", Sizeof::class)
-
-    CharArray::class -> CodeBlock.of("%T.CHAR", Sizeof::class)
-    DoubleArray::class -> CodeBlock.of("%T.DOUBLE", Sizeof::class)
-    FloatArray::class -> CodeBlock.of("%T.FLOAT", Sizeof::class)
-    else -> throw CantConvert("Can't get size of $param")
   }
 }

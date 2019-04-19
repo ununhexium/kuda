@@ -1,4 +1,4 @@
-package net.lab0.kuda.sample
+package net.lab0.kuda.sample.correct
 
 import net.lab0.kuda.KudaContext
 import net.lab0.kuda.annotation.Global
@@ -6,7 +6,7 @@ import net.lab0.kuda.annotation.Kernel
 import net.lab0.kuda.annotation.Return
 
 @Kernel
-class SaxpySample: KudaContext() {
+class SaxpyKernel : KudaContext() {
   @Global
   fun saxpy(n: Int, a: Float, x: FloatArray, @Return y: FloatArray) {
     val i: Int = blockIdx.x * blockDim.x + threadIdx.x

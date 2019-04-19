@@ -1,4 +1,4 @@
-package net.lab0.kuda.sample
+package net.lab0.kuda.sample.correct
 
 import net.lab0.kuda.annotation.Global
 import net.lab0.kuda.annotation.Kernel
@@ -7,7 +7,7 @@ import net.lab0.kuda.annotation.Kernel
 @Kernel
 class OperatorsKernel {
   @Global
-  fun operators(i: Int, l: Long, b: BooleanArray, m: Long) {
+  fun operators(i: Int, l: Long, holder: ShortArray, m: Long) {
     val x0: Long = i + l
     val x1: Long = i - l
     val x2: Long = i * l
@@ -46,19 +46,19 @@ class OperatorsKernel {
         )
 
     if (i < sum || i > sum) {
-      b[0] = true
+      holder[0] = 1
     }
 
     if (i >= sum && i <= sum) {
-      b[0] = true
+      holder[0] = 1
     }
 
     if (x5 == l || x5 != x0) {
-      b[0] = true
+      holder[0] = 1
     }
 
-    if (!b[0]) {
-      b[0] = true
+    if (!false) {
+      holder[0] = -1
     }
 
   }

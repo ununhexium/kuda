@@ -6,8 +6,8 @@ import net.lab0.kuda.KernelParameters
 import net.lab0.kuda.KudaContext
 import net.lab0.kuda.loadSource
 import net.lab0.kuda.named
-import net.lab0.kuda.sample.DoNothingKernel
-import net.lab0.kuda.sample.SaxpyKernel
+import net.lab0.kuda.sample.correct.DoNothingKernel
+import net.lab0.kuda.sample.correct.SaxpyKernel
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

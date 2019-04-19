@@ -5,8 +5,8 @@ A freshly baked kernel wrapper ready to be executed.
 
 
 This is a proof of concept to provide a way to write Cuda kernels in Kotlin.
-The Kotlin code is translated from Kotlin source code into CPP source code.
-That code is then compile to a `ptx` with `nvcc`. 
+The Kotlin code is transpiled from Kotlin into CPP/Cuda source code.
+That code is then compiled to a `ptx` file with `nvcc` to be executed. 
 
 
 ## Hello Kuda
@@ -67,35 +67,39 @@ Currently supports some basic C-like operations with a lot of restrictions.
 Kotlin data types are mapped to their C equivalent according to the following table.
  
  
-| Kotlin       | C++             |
-|-------------:|:----------------|
-| Boolean      | bool            |
-| Byte         | char            |
-| UByte        | unsigned char   |
-| Short        | short           |
-| UShort       | unsigned short  |
-| Int          | int             |
-| UInt         | unsigned int    |
-| Long         | long            |
-| ULong        | unsigned long   |
-|              |                 |
-| Float        | float           |
-| Double       | double          |
-|              |                 |
-| BooleanArray | bool *          |
-| ByteArray    | char *          |
-| UByteArray   | unsigned char * |
-| ShortArray   | short *         |
-| UShortArray  | unsigned short *|
-| IntArray     | int *           |
-| UIntArray    | unsigned int *  |
-| LongArray    | long *          |
-| ULongArray   | unsigned long * |
-|              |                 |
-| FloatArray   | float *         |
-| DoubleArray  | double *        |
+| Kotlin       | C++                   |
+|-------------:|:----------------------|
+#| Boolean      | Not supported[^1]     |
+| Byte         | char                  |
+#| UByte        | unsigned char         |
+| Short        | short                 |
+#| UShort       | unsigned short        |
+| Int          | int                   |
+#| UInt         | unsigned int          |
+| Long         | long                  |
+#| ULong        | unsigned long         |
+|              |                       |
+| Float        | float                 |
+| Double       | double                |
+|              |                       |
+| BooleanArray | Not supported[^1]     |
+| ByteArray    | char *                |
+#| UByteArray   | unsigned char *       |
+| ShortArray   | short *               |
+#| UShortArray  | unsigned short *      |
+| IntArray     | int *                 |
+#| UIntArray    | unsigned int *        |
+| LongArray    | long *                |
+#| ULongArray   | unsigned long *       |
+|              |                       |
+| FloatArray   | float *               |
+| DoubleArray  | double *              |
 
 Uses kotlin 1.3 experimental unsigned types.
+
+[^1]: The size of a Boolean is JVM [implementation dependant](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html) 
+and JCuda doesn't offer a way to get a boolean's size nor pointer to a boolean array.
+As a workaround, use any of the integer types.
 
 ### [Cast](s2s/src/test/kotlin/net/lab0/kuda/sample/PrimitivesCastKernel.kt)
 
@@ -144,19 +148,20 @@ Binary
 |or      |&#124;|
 |xor     | ^    |
 
-### Control structures
+### [Control structures](s2s/src/test/kotlin/net/lab0/kuda/sample/ControlKernel.kt)
 
 * `while`
 * `if`
 
-For is explicitly not supported as the syntax are very different.
+`for` is explicitly not supported as the syntax are very different.
 While will do the job just fine.
 
 
-### Matrices
+### [Matrices](s2s/src/test/kotlin/net/lab0/kuda/sample/Matrix2DKernel.kt)
 
 Supports C matrix notation `int [][] foo` and `int ** foo` 
-with nested arrays: `val foo: Array<IntArray>`
+with nested arrays: `val foo: Array<IntArray>` only inside the kernel.
+Passing such arguments via the wrapper is not supported.
 
 
 -------------------------------
@@ -249,6 +254,13 @@ Same for `toFloat`, `toDouble`, ...
 
 -------------------------------
 
+### Automatic initialization
+
+In Kotlin/Java int, double... have initial values.
+Also init these values in C.
+
+### Multidimensional array passing via wrapper
+
 # Alternatives
 
 
@@ -281,3 +293,4 @@ http://jogamp.org/jocl/www/
 ### LWJGL openGL wrappers
 
 https://www.lwjgl.org/
+
