@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.RuleContext
 import org.antlr.v4.runtime.tree.ParseTree
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.charset.Charset
@@ -35,10 +36,9 @@ class HeaderParser {
       println(ctx.readableText)
       println(ctx.declspecifierseq().lastDeclspecifierseq)
     }
-
-
   }
 
+  @Disabled
   @Test
   fun `parser header`() {
     val lexer = CPP14Lexer(CharStreams.fromFileName("/usr/local/cuda/include/crt/math_functions.h"))
