@@ -69,6 +69,26 @@ dependencies {
 
 
 tasks {
+  val headers by registering(Task::class) {
+    val headerFiles = listOf(
+        "/usr/local/cuda/include/crt/math_functions.h"
+    )
+    
+    headerFiles.forEach {
+      val f = file(it)
+      f.readLines().filter {
+        it.contains("__device_builtin__")
+      }.map{
+        it
+            .replace("extern", "")
+            .replace(Regex("_[a-zA-Z_]+( |;)"), "")
+            .replace(Regex(" +"), " ")
+      }.map{
+
+      }
+    }
+  }
+
   val kuda by registering(Task::class) {
 
     val testSources = project(":s2s").sourceSets.test.get().allJava
@@ -83,7 +103,7 @@ tasks {
       allSources.flatMap { folder ->
         fileTree(folder)
             .filter { file ->
-//              logger.info(file.absolutePath)
+              //              logger.info(file.absolutePath)
               file.readText().split("\n").any {
                 it.matches(Regex("^import " + Kernel::class.qualifiedName))
               }

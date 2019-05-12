@@ -61,6 +61,9 @@ to forward the kernel call to the graphics card.
 
 Currently supports some basic C-like operations with a lot of restrictions.
 
+Anything going beyond the simple examples shown here would require a lot of parsing and processing,
+or a lot of manual implementation to achieve anything remotely useful (complete math lib, most used Cuda functions).
+
 
 ### [Data types](s2s/src/test/kotlin/net/lab0/kuda/sample/DataTypeKernel.kt)
 
@@ -69,28 +72,19 @@ Kotlin data types are mapped to their C equivalent according to the following ta
  
 | Kotlin       | C++                   |
 |-------------:|:----------------------|
-#| Boolean      | Not supported[^1]     |
 | Byte         | char                  |
-#| UByte        | unsigned char         |
 | Short        | short                 |
-#| UShort       | unsigned short        |
 | Int          | int                   |
-#| UInt         | unsigned int          |
 | Long         | long                  |
-#| ULong        | unsigned long         |
 |              |                       |
 | Float        | float                 |
 | Double       | double                |
 |              |                       |
 | BooleanArray | Not supported[^1]     |
 | ByteArray    | char *                |
-#| UByteArray   | unsigned char *       |
 | ShortArray   | short *               |
-#| UShortArray  | unsigned short *      |
 | IntArray     | int *                 |
-#| UIntArray    | unsigned int *        |
 | LongArray    | long *                |
-#| ULongArray   | unsigned long *       |
 |              |                       |
 | FloatArray   | float *               |
 | DoubleArray  | double *              |
@@ -294,3 +288,17 @@ http://jogamp.org/jocl/www/
 
 https://www.lwjgl.org/
 
+
+# Here be dragons
+
+Attempting to provide the cuda basing math operations turned to be much harder than anticipated.
+All the functions are declared in CPP headers.
+These headers use non trivial templates and macros which makes the parsing of 
+these headers either incomplete or very hard with the tools/knowledge I have (ANTLR, beginner CPP experience).
+
+To anyone who may what to do something similar to this project and what to go further,
+have a look at CPP headers parsing,
+the way variables are passed as pointers,
+how functions are declared for both the device and the host.
+
+There are challenges to overcome in these areas to make kotlin a real alternative to writing C++ for Cuda.

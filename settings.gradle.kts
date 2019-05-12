@@ -10,6 +10,7 @@
 rootProject.name = "kuda"
 
 include(":annotation")
+include(":headers")
 include(":s2s")
 include(":sample")
 
